@@ -173,5 +173,6 @@ Kubernetes集群启动后，会保留两个特殊的命名空间：
 
 ## 重要组件
 
-
+- Master
+- Nodes
 
