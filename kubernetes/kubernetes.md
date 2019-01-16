@@ -173,6 +173,48 @@ Kubernetes集群启动后，会保留两个特殊的命名空间：
 
 ## 重要组件
 
+Kubernetes集群采用了典型的“主-从”架构，由使用kubernetes组建管理的一组节点组成看，这些节点提供了容器资源池供用户使用。一个集群主要由管理节点（Master）和工作节点（Node）组建构成。Master系欸的那负责控制，Node节点负责干活，各自又通过若干组件组合实现。
+
 - Master
+
+
+Master节点负责协调集群中的管理活动，例如调度、监控、支持对资源的操作等，通过节点控制器来与工作节点交互。其中组件主要又Etcd、apiserver、scheduler、controller-manager，以及ui、DNS等可选插件。
+
+这些组件可以任意部署在相同或者不同机器上，只要可以通过标准的HTTP接口可以相互访问到即可，这意味着对Kubernetes的管理组件进行扩展将变得十分简单。
+
 - Nodes
 
+
+Node节点是实际工作的计算实例。Node节点可以是虚拟机或者物理机器，在创建Kubernetes集群过程中，都要与预装一些必要的软件来响应Master的管理。目前，Node上至少包括容器环境（如Docker）、kubelet（跟Master节点通信）和Kube-Proxy（负责网络相关功能）。
+
+Node节点邮几个重要的属性：地址信息（Address）、状态（Condition）、资源容量（Capacity）、节点信息（Info）。
+
+#### Etcd
+
+Kubernetes依赖Etcd数据库服务来记录所有节点和资源的状态。可以说，Etcd是Kubernetes集群中最重要的组件。apiserver的大量功能都是通过跟Etcd进行交互实现的。
+
+#### kube-apiserver
+
+作为REST API服务端，kube-apiserver接受来自客户端和其他组件的请求，更行Etcd中的数据，是响应对API资源操作的最前端组件。一般推荐部署多个kube-apiserver来提高可用性。
+
+#### kube-scheduler
+
+kube-scheduler负责具体的资源调度工作，对节点进行筛选和过滤。当资源请求被收到后，负责按照调度策略选择最合适的节点运行Pod。
+
+#### kube-controller-manager
+
+提供控制器服务，监视集群的状态，一旦不满足状态则采取操作，让状态恢复正常，常见的控制器包括：
+
+- 复制（replication）控制器：确保指定Pod同时存在指定目录的实例；
+- 端点（endpoint）控制器：负责Endpoints对象的创建、更新；
+- 节点（node）控制器：负责节点的发现，管理和监控；
+- 命名空间（namespace）控制器：响应对命名空间的操作，如创建、删除等；
+- 服务账户（ServiceAccounts）控制器：管理命令空间中的ServiceAccount，确保默认账户存在于每个正常的命名空间中。
+
+#### kubelet
+
+kubelet是Node节点上最重要的工作程序，它是负责具体干活的，将给定的Pod运行在自己负责的节点上。如果kubelet出现故障，则kubernetes将认为该Node变得不可用。因此，在生产环节中推荐对kubelet进程进行监控，并通过诸如supervisord这样的软件来及时重启故障的进程。另外，一般要通过-system-reserved和-kube-reserved参数为系统和Kubernetes组件预留出运行资源，避免耗尽后让节点挂掉。
+
+#### kube-proxy
+
+kube-proxy会在每一个Node节点上监听，负责把对应服务端口来的通信映射给后端对应的Pod。简单的说，它既是一个NAT（支持TCP和UDP），同时也有负载均衡（目前仅支持TCP）的功能。
