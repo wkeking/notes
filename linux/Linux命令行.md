@@ -1013,8 +1013,10 @@ umask命令用来显示和设置这个默认权限：
 
 ```shell
 umask
-umask 022
+umask 0022
 ```
+
+umask输出第一位是粘着位，是共享文件中用到的概念。
 
 Linux文件权限码：
 
@@ -1135,11 +1137,142 @@ chgrp test newfile
 
 用户账户必须是文件的属主，还需要是新组的成员。
 
+#### 共享文件
 
+Linux系统上共享文件的方法是创建组。但在一个完整的共享文件的环境中，事情会复杂的多。
 
+有一种简单的方法可以解决这个问题。Linux还为每个文件和目录存储了3个额外的信息位。
 
+- 设置用户ID（SUID）：当文件被用户使用时，程序会以文件属主的权限运行。
+- 设置组ID（SGID）：对文件来说，程序会以文件属组的权限运行；对目录来说，目录中创建的新文件会以目录的默认属组作为默认属组。
+- 粘着位：进程结束后文件还驻留（粘着）在内存中。
 
+chmod SUID、SGID和粘着位的八进制值：
 
+| 二进制值 | 八进制值 |      描述       |
+| :--: | :--: | :-----------: |
+| 000  |  0   |    所有位都清零     |
+| 001  |  1   |     粘着位置位     |
+| 010  |  2   |    SGID位置位    |
+| 011  |  3   |  SGID位和粘着位置位  |
+| 100  |  4   |    SUID位置位    |
+| 101  |  5   |  SUID位和粘着位置位  |
+| 110  |  6   | SUID位和SGID位置位 |
+| 111  |  7   |     所有位置位     |
 
+umask中四位八进制值第一位就是默认的SUID、SGID和粘着位的默认值。
 
+```shell
+chmod g+s testdir
+chmod 2644 testdir
+```
+
+## 安装软件程序
+
+### 基于Red Hat系统（yum）
+
+#### 列出已安装包
+
+要找出系统上已安装的包：
+
+```shell
+yum list installed
+```
+
+找出某个特定软件包的详细信息：
+
+```shell
+yum list docker
+```
+
+查看包时候已安装：
+
+```shell
+yum list docker installed
+```
+
+找出某个特定文件属于哪个软件包：
+
+```shell
+yum provides file_name
+```
+
+#### 用yum安装软件
+
+从仓库中安装软件包、所有它需要的库以及依赖的其他包：
+
+```shell
+yum install package_name
+```
+
+也可以手动下载rpm安装文件并用yum安装，叫做本地安装：
+
+```shell
+yum localinstall package_name.rpm
+```
+
+#### 用yum更新软件
+
+列出所有已安装包的可用更新：
+
+```shell
+yum list updates
+```
+
+如果发现某个特定软件包需要更新：
+
+```shell
+yum update package_name
+```
+
+如果想对更新列表中的所有包进行更新：
+
+```shell
+yum update
+```
+
+#### 用yum卸载文件
+
+只删除软件包而保留配置文件和数据文件：
+
+```shell
+yum remove package_name
+```
+
+要删除软件和它所有的文件：
+
+```shell
+yum erase package_name
+```
+
+#### 处理损坏的包依赖关系
+
+有时在安装多个软件包时，某个包的软件依赖关系可能会被另一个包的安装覆盖掉。这叫做损坏的包依赖关系。
+
+```shell
+yum clean all
+yum update
+```
+
+显示所有包的库依赖关系以及什么软件可以提供这些库依赖关系，一旦知道某个包需要的库，就能安装它们：
+
+```shell
+yum deplist xterm
+```
+
+--skip-broken选项允许忽略依赖关系损坏的包，继续去更新其他软件包。这可能救不了损坏的包，但至少可以更新系统上的其他包：
+
+```shell
+yum update --skip-broken
+```
+
+#### yum软件库
+
+yum的仓库定义文件位于/etc/yum.repos.d。需要添加正确的URL，并获得必要的加密密钥。
+
+显示正从哪些仓库中获取软件：
+
+```shell
+yum repolist
+```
 
