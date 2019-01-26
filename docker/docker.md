@@ -448,11 +448,126 @@ docker [container] cp [OPTIONS] CONTAINER:SRC_PATH DEST_PATH
 docker container port CONTAINER
 ```
 
+使用update命令可以更新容器的一些运行配置：
 
+```shell
+docker [container] update [OPTIONS] CONTAINER [CONTAINER...]
+```
 
+支持的选项包括：
 
+|            选项             |              描述              |
+| :-----------------------: | :--------------------------: |
+|   -blkio-weight uint16    |  更新块IO限制，10~1000，默认值0，代表无限制  |
+|      -cpu-period int      | 限制CPU调度器CFS使用时间，单位为微妙，最小1000 |
+|      -cpu-quota int       |  限制CPU调度器CFS配额，单位为微妙，最小1000  |
+|    -cpu-rt-period int     |     限制CPU调度器的实时周期，单位为微妙      |
+|    -cpu-rt-runtime int    |     限制CPU调度器的实时运行时，单位为微妙     |
+|    -c,-cpu-shares int     |          限制CPU使用份额           |
+|       -cpus decimal       |           限制CPU个数            |
+|    -cpuset-cpus string    |        允许使用的CPU核，如0-3        |
+|    -cpuset-mems string    |        允许使用的内存块，如0-3         |
+|   -kernel-memory bytes    |          限制使用的内核内存           |
+|     -m,-memory bytes      |           限制使用的内存            |
+| -memory-reservation bytes |            内存软限制             |
+|    -memory-swap bytes     |   内存加上缓存区的限制，-1表示为对缓冲区无限制    |
+|      -restart string      |          容器退出后的重启策略          |
 
+例如，限制总配额为1秒，容器test所占用时间为10%：
 
+```shell
+docker update --cpu-quota 1000000 test
+docker update --cpu-period 100000 test
+```
+
+## 六.Docker数据管理
+
+容器中管理数据主要有两种方式：
+
+- 数据卷（Data Volumes）：容器内数据直接映射到本地主机环境
+- 数据卷容器（Data Volume Containers）：使用特定容器维护数据卷
+
+### 数据卷
+
+数据卷可以提供很多有用的特性：
+
+- 数据卷可以在容器之间共享和重用，荣期间传递数据将变得高效与方便
+- 对数据卷内数据的修改会立马生效，无论是容器内操作还是本地操作
+- 对数据卷的更新不会影像镜像，解耦开应用和数据
+- 卷会一直存在，直到没有容器使用，可以安全的卸载他
+
+使用-mount选项挂载数据卷：
+
+```shell
+docker run -d --mount type=bind,source=/webapp,destination=/opt/webapp webapp
+```
+
+-mount选项支持三种类型的数据卷：
+
+- volume：普通数据卷，映射到主机/var/lib/docker/volumes路径下
+- bind：绑定数据卷，映射到主机指定路径下
+- tmpfs：临时数据卷，只存在于内存中
+
+使用-v选项同样可以在容器内创建一个数据卷：
+
+```shell
+docker run -d -v /webapp:/opt/webapp:ro webapp
+```
+
+本地的路径必须是绝对路径，容器内路径可以是相对路径。
+
+Docker挂载数据卷的默认权限是读写（rw），也可以指定为只读（ro）。加了ro之后，容器内对数据卷内的数据卷就无法修改了。
+
+### 数据卷容器
+
+数据卷容器是一个容器，他的目的是专门提供数据卷给其他容器挂载。
+
+创建一个数据卷容器：
+
+```shell
+docker run -it -v /dbdata --name dbdata ubuntu
+```
+
+使用--volumes-from来挂载dbdata容器中的数据卷：
+
+```shell
+docker run -it --volumes-from dbdata --name db1 ubuntu
+docker run -it --volumes-from dbdata --name db2 ubuntu
+```
+
+如果删除了挂载的容器，数据卷不会被自动删除。如果要删除一个数据卷，必须在删除最后一个还挂载着它的容器时显式使用docker rm -v命令来指定同时删除关联的容器。
+
+## 七.端口映射与容器互联
+
+### 端口映射
+
+使用-P标记时，Docker会随机映射一个49000~49900的端口到内部容器开放的端口：
+
+```shell
+docker run -d -P webapp
+```
+
+使用-p标记则可以指定要映射的端口，支持的格式有：
+
+IP:HOSTPORT:CONTAINERPORT
+
+IP::CONTAINERPORT
+
+HOSTPORT:CONTAINERPORT
+
+```shell
+docker run -d -p 8080:80 tomcat
+```
+
+###互联机制实现便捷互访
+
+--link参数实现容器间的互联关系，格式：
+
+--link name：alias，其中name是要链接的容器名称，alias时别名
+
+```shell
+docker run -d --name web --link db:db tomcat
+```
 
 
 
