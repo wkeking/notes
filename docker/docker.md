@@ -264,16 +264,18 @@ docker image prune
 存出镜像：
 
 ```shell
-docker [image] save -o ubuntu_18.04.tar ubuntu:18.04
+docker [image] save [-o|--output[=""]] IMAGE
 ```
 
-之后可以复制ubuntu_18.04.tar文件将该镜像分享。
+可以通过-o选项来指定导出的tar文件名，也可以通过重定向来实现。
 
 载入镜像：
 
 ```shell
-docker [image] load -i ubuntu_18.04.tar
+docker [image] load -i IMAGE.tar
 ```
+
+-i选项从指定的文件中读入镜像。
 
 ### 上传镜像
 
@@ -296,7 +298,7 @@ docker [container] create ubuntu:latest
 使用start命令来启动一个容器：
 
 ```shell
-docker [container] start containerID
+docker [container] start CONTAINER
 ```
 
 使用run命令来创建并启动一个容器：
@@ -329,21 +331,122 @@ docker [container] run -d ubuntu:latest
 docker [container] logs containerID
 ```
 
+ ### 停止容器
 
+使用pause命令暂停运行的容器：
 
+```shell
+docker [container] pause CONTAINER [CONTAINER...]
+```
 
+使用unpause命令恢复处于paused状态的容器到运行状态：
 
+```shell
+docker [container] unpause CONTAINER [CONTAINER...]
+```
 
+使用stop命令终止运行中的容器：
 
+```shell
+docker [container] stop [-t|--time[=10]] CONTAINER [CONTAINER...]
+```
 
+该命令会首先向容器发送SIGTERM信号，等待一段超时时间后（默认为10秒），再发送SIGKILL信号来终止容器。
 
+此外，还可以通过docker [container] kill直接发送SIGTERM信号来强行终止容器。
 
+使用prune命令自动清除掉所有处于停止状态的容器：
 
+```shell
+docker container prune
+```
 
+### 进入容器
 
+使用exec命令与容器进行交互：
 
+```shell
+docker [container] exec -it CONTAINER /bin/bash
+```
 
+-i，--interactive=true|false：打开标准输入接受用户输入命令，默认值为false
 
+-t，--tty=ture|false：分配伪终端，默认值为false
+
+### 删除容器
+
+使用rm命令删除处于终止或退出状态的容器：
+
+```shell
+docker [container] rm CONTAINER [CONTAINER...]
+```
+
+默认情况下，docker rm命令只能删除已经处于终止或退出状态的容器，并不能删除还处于运行状态的容器。
+
+-f，--force=false：是否强行终止并删除一个运行中的容器
+
+-l，--link=false：删除容器的连接，但保留容器
+
+-v，--volumes=false：删除容器挂载的容器
+
+### 导入和导出容器
+
+使用export命令导出一个已经创建的容器到一个文件：
+
+```shell
+docker [container] export [-o|--output=[""]] CONTAINER
+```
+
+可以通过-o选项来指定导出的tar文件名，也可以直接通过重定向来实现。
+
+使用import命令将导出的文件导入变成**镜像**：
+
+```shell
+docker import [-c|--change[=[]]] file|URL - [REPOSITORY[:TAG]]
+```
+
+可以通过-c，--change=[]选项在导入的同时执行对容器进行修改的Dockerfile指令。
+
+实际上，既可以使用docker load命令来导入镜像存储文件到本地镜像库，也可以使用docker import命令来导入一个容器快照到本地镜像库。这两者的区别在于：容器快照文件将丢弃所有的历史记录和元数据信息（即仅保存容器当时的快照状态），而镜像存储文件将保存完整记录，体积更大。此外，从容器快照文件导入时可以重新指定标签等元数据信息。
+
+### 查看容器
+
+使用inspect命令可以查看容器具体信息：
+
+```shell
+docker container inspect CONTAINER [CONTAINER...] 
+```
+
+该命令会以json格式返回包括容器ID、创建时间、路径、状态、镜像、配置等在内的各项信息。
+
+使用top命令查看容器内进程：
+
+```shell
+docker [container] top CONTAINER [CONTAINER...]
+```
+
+使用stats命令显示CPU、内存、存储、网络等使用情况：
+
+```shell
+docker [container] stats CONTAINER [CONTAINER...]
+```
+
+### 其他容器命令
+
+使用cp命令在容器和主机之间复制文件：
+
+```shell
+docker [container] cp [OPTIONS] CONTAINER:SRC_PATH DEST_PATH
+```
+
+- -a，-archive：打包模式，复制文件会带有原始的uid/gid信息
+- -L，-follow-link：跟随软连接。当原路径为软连接时，默认只复制链接信息。使用该选项会复制链接的目标内容。
+
+使用port命令可以查看容器的端口映射：
+
+```shell
+docker container port CONTAINER
+```
 
 
 
