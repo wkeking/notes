@@ -1,10 +1,11 @@
-import simpleFactory.PizzaStore;
-import simpleFactory.factory.SimplePizzaFactory;
+import AbstractFactory.commodity.Pizza;
+import AbstractFactory.store.NYPizzaStore;
+import AbstractFactory.store.PizzaStore;
 
 public class Main {
     public static void main(String args[]) {
-        SimplePizzaFactory factory = new SimplePizzaFactory();
-        PizzaStore store = new PizzaStore(factory);
-        store.orderPizza("cheese");
+        PizzaStore store = new NYPizzaStore ();
+        Pizza pizza = store.orderPizza ("cheese");
+        System.out.println(pizza);
     }
 }
