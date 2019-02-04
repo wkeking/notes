@@ -1,11 +1,11 @@
-import AbstractFactory.commodity.Pizza;
-import AbstractFactory.store.NYPizzaStore;
-import AbstractFactory.store.PizzaStore;
+import builder.builder.HotBuilder;
+import builder.director.YXRSDirector;
+import builder.product.YXRS;
 
 public class Main {
     public static void main(String args[]) {
-        PizzaStore store = new NYPizzaStore ();
-        Pizza pizza = store.orderPizza ("cheese");
-        System.out.println(pizza);
+        YXRSDirector director = new YXRSDirector (new HotBuilder ());
+        YXRS yxrs = director.construct ();
+        System.out.println(yxrs);
     }
 }
