@@ -1,9 +1,9 @@
-package AbstractFactory.commodity;
+package abstractFactory.commodity;
 
-import AbstractFactory.product.Cheese;
-import AbstractFactory.product.Clams;
-import AbstractFactory.product.Dough;
-import AbstractFactory.product.Sauce;
+import abstractFactory.product.Cheese;
+import abstractFactory.product.Clams;
+import abstractFactory.product.Dough;
+import abstractFactory.product.Sauce;
 
 public abstract class Pizza {
     protected String name;

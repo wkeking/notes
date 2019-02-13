@@ -1,9 +1,9 @@
-package AbstractFactory.factory;
+package abstractFactory.factory;
 
-import AbstractFactory.product.Cheese;
-import AbstractFactory.product.Clams;
-import AbstractFactory.product.Dough;
-import AbstractFactory.product.Sauce;
+import abstractFactory.product.Cheese;
+import abstractFactory.product.Clams;
+import abstractFactory.product.Dough;
+import abstractFactory.product.Sauce;
 
 public interface PizzaIngredientFactory {
     Dough createDough();

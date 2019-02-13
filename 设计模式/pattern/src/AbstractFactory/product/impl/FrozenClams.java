@@ -1,6 +1,6 @@
-package AbstractFactory.product.impl;
+package abstractFactory.product.impl;
 
-import AbstractFactory.product.Clams;
+import abstractFactory.product.Clams;
 
 public class FrozenClams implements Clams {
     private String name = "FrozenClams";

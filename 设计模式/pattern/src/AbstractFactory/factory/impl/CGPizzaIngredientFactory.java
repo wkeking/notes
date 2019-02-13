@@ -1,14 +1,14 @@
-package AbstractFactory.factory.impl;
+package abstractFactory.factory.impl;
 
-import AbstractFactory.factory.PizzaIngredientFactory;
-import AbstractFactory.product.Cheese;
-import AbstractFactory.product.Clams;
-import AbstractFactory.product.Dough;
-import AbstractFactory.product.Sauce;
-import AbstractFactory.product.impl.FrozenClams;
-import AbstractFactory.product.impl.MozzarellaCheese;
-import AbstractFactory.product.impl.PlumTomatoSauce;
-import AbstractFactory.product.impl.ThickCrustDough;
+import abstractFactory.factory.PizzaIngredientFactory;
+import abstractFactory.product.Cheese;
+import abstractFactory.product.Clams;
+import abstractFactory.product.Dough;
+import abstractFactory.product.Sauce;
+import abstractFactory.product.impl.FrozenClams;
+import abstractFactory.product.impl.MozzarellaCheese;
+import abstractFactory.product.impl.PlumTomatoSauce;
+import abstractFactory.product.impl.ThickCrustDough;
 
 public class CGPizzaIngredientFactory implements PizzaIngredientFactory {
     @Override

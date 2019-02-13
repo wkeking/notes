@@ -1,12 +1,12 @@
-package AbstractFactory.store;
+package abstractFactory.store;
 
-import AbstractFactory.commodity.Pizza;
-import AbstractFactory.commodity.impl.CheesePizza;
-import AbstractFactory.commodity.impl.ClamPizza;
-import AbstractFactory.commodity.impl.PepperoniPizza;
-import AbstractFactory.commodity.impl.VeggiePizza;
-import AbstractFactory.factory.PizzaIngredientFactory;
-import AbstractFactory.factory.impl.NYPizzaIngredientFactory;
+import abstractFactory.commodity.Pizza;
+import abstractFactory.commodity.impl.CheesePizza;
+import abstractFactory.commodity.impl.ClamPizza;
+import abstractFactory.commodity.impl.PepperoniPizza;
+import abstractFactory.commodity.impl.VeggiePizza;
+import abstractFactory.factory.PizzaIngredientFactory;
+import abstractFactory.factory.impl.NYPizzaIngredientFactory;
 
 
 public class NYPizzaStore extends PizzaStore {

@@ -1,6 +1,6 @@
-package AbstractFactory.product.impl;
+package abstractFactory.product.impl;
 
-import AbstractFactory.product.Cheese;
+import abstractFactory.product.Cheese;
 
 public class ReggianoCheese implements Cheese {
     private String name = "ReggianoCheese";

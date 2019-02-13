@@ -1,6 +1,6 @@
-package AbstractFactory.product.impl;
+package abstractFactory.product.impl;
 
-import AbstractFactory.product.Dough;
+import abstractFactory.product.Dough;
 
 public class ThickCrustDough implements Dough {
     private String name = "ThickCrustDough";

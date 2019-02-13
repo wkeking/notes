@@ -1,6 +1,6 @@
-package AbstractFactory.store;
+package abstractFactory.store;
 
-import AbstractFactory.commodity.Pizza;
+import abstractFactory.commodity.Pizza;
 
 public abstract class PizzaStore {
     public Pizza orderPizza(String type) {

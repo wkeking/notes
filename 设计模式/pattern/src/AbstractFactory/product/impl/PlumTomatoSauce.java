@@ -1,6 +1,6 @@
-package AbstractFactory.product.impl;
+package abstractFactory.product.impl;
 
-import AbstractFactory.product.Sauce;
+import abstractFactory.product.Sauce;
 
 public class PlumTomatoSauce implements Sauce {
     private String name = "PlumTomatoSauce";

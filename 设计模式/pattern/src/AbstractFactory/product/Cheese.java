@@ -1,4 +1,4 @@
-package AbstractFactory.product;
+package abstractFactory.product;
 
 public interface Cheese {
     String toString();
