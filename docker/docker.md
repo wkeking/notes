@@ -156,7 +156,7 @@ sudo usermod -aG docker USER_NAME
 ```shell
 /etc/docker/daemon.json
 {
-  "registry-mirrors": ["https://xxxxx.mirror.aliyuncs.com"]
+  "registry-mirrors": ["https://san6bh80.mirror.aliyuncs.com"]
 }
 ```
 
