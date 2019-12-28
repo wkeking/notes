@@ -480,7 +480,7 @@ brpop class 0
 
 ## 集合对象命令
 
-无序，无重复，集合见操作
+无序，无重复，集合间操作
 
 #### sadd：向集合key添加value，如果value已存在，添加失败
 
@@ -682,48 +682,3 @@ zremrangebyrank student 0 2
 zremrangebyscore key minScore maxScore
 zremrangebyscore student 2 5
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
