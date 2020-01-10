@@ -43,11 +43,19 @@ maxmemory-policy volatile-lru
 ```
 
 - volatile-lru：从已设置过期时间的数据集中挑选最近最少使用的数据淘汰
+- volatile-lfu：从已设置过期时间的数据集中挑选最近最少访问频率进行淘汰//Redis4.0新增
 - volatile-ttl：从已设置过期时间的数据集中挑选将要过期的数据淘汰
 - volatile-random：从已设置过期时间的数据集中任意选择数据淘汰
 - allkeys-lru：从数据集中挑选最近最少使用的数据淘汰
+- allkeys-lfu：从数据集中选最近最少访问频率进行淘汰//Redis4.0新增
 - allkeys-random：从数据集中任意选择数据淘汰
 - no-enviction：禁止驱逐数据，新写入操作会报错
+
+### LRU和LFU
+
+LRU的全称是` Least Recently Used `，表示按最近最少使用进行淘汰。
+
+LFU 的全称是`Least Frequently Used`，表示按最近的访问频率进行淘汰，它比 LRU 更加精准地表示了一个 key 被访问的热度。Redis 4.0新引入的淘汰策略。
 
 ## AOF、RDB和复制功能对过期键的处理
 
