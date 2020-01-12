@@ -178,3 +178,57 @@ MONITOR
 ```
 
 客户端通过执行MONITOR命令，可以将自己编程一个监视器，实时的接收并打印出服务器当前处理的命令请求的相关信息。
+
+## 位图
+
+位图，也成为二进制位数组。位图不是特殊的数据结构，它的内容其实就是普通的字符串，也就是 byte 数组。我们可以使用普通的 get/set 直接获取和设置整个位图的内容，也可以使用位图操作 getbit/setbit 等将 byte 数组看成「位数组」来处理。
+
+### GETBIT命令
+
+GETBIT命令用于返回位数组bitarray在offset偏移量上的二进制位的值。
+
+时间复杂度为O(1)
+
+``` redis
+GETBIT <bitarray> <offset>
+```
+
+### SETBIT命令
+
+SETBIT命令用于将位数组bitarray在offset偏移量上的二进制位的值设置为value，并向客户端返回二进制位被设置之前的旧值。
+
+时间复杂度为O(1)
+
+``` redis
+SETBIT <bitarray> <offset> <value>
+```
+
+### BITCOUNT命令
+
+BITCOUNT命令用于统计给定位数组中，值为1的二进制位的数量。
+
+``` redis
+BITCOUNT <bitarray> [start end]
+```
+
+### BITPOS命令
+
+BITPOS命令用于统计给定位数组中，第一个值为bit的位置。
+
+``` redis
+BITPOS <bitarray> <bit> [start end]
+```
+
+### BITOP命令
+
+BITOP命令支持对字节执行逻辑与（&）、逻辑或（|）、逻辑异或（^）和逻辑非（~）操作。
+
+``` redis
+BITOP <operation> <result> <key> [key ...]
+```
+
+- BITOP AND：程序用&操作计算出所有输入的位图的逻辑与结果，并保存在指定的键上面
+- BITOP OR：程序用|操作计算出所有输入的位图的逻辑或结果，并保存在指定的键上面
+- BITOP XOR：程序用^操作计算出所有输入的位图的逻辑异或结果，并保存在指定的键上面
+- BITOP NOT：程序用~操作计算出所有输入的位图的逻辑非结果，并保存在指定的键上面
+
