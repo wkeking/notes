@@ -22,6 +22,14 @@ keys *	//获取所有的key
 keys ab?	//获取3个字节，并且前两个是‘ab’的key
 ```
 
+### scan：分批匹配
+
+总共的时间复杂度O(n)
+
+``` redis
+SCAN cursor [MATCH pattern] [COUNT count]
+```
+
 #### dbsize：获取所有key的数量
 
 时间复杂度O(1)

@@ -232,3 +232,189 @@ BITOP <operation> <result> <key> [key ...]
 - BITOP XOR：程序用^操作计算出所有输入的位图的逻辑异或结果，并保存在指定的键上面
 - BITOP NOT：程序用~操作计算出所有输入的位图的逻辑非结果，并保存在指定的键上面
 
+### BITFIELD命令
+
+Redis的3.2版本新增了BITFIELD命令，该命令可以对指定位图的片段进行读写，但是最多只能处理64个连续的位，如果超过64位，可以使用多次子指令，BITFIELD可以一次执行多个子指令。
+
+BITFIELD有三个子指令，分别是 GET/SET/INCRBY。
+
+``` redis
+BITFIELD key [GET type offset] [SET type offset value] [INCRBY type offset increment] [OVERFLOW WRAP|SAT|FAIL]
+```
+
+type是由符号位和位数量组成：有符号数 （i） ，无符号数 （u）
+
+所谓有符号数是指获取的位数组中第一个位是符号位，剩下的才是值。如果第一位是 1，那就是负数。无符号数表示非负数，没有符号位，获取的位数组全部都是值。有符号数最多可以获取 64 位，无符号数只能获取 63 位 (因为 Redis 协议中的 integer 是有符号数，最大 64 位，不能传递 64 位无符号值)。如果超出位数限制，Redis 就会告诉你参数错误。 
+
+``` redis
+BITFIELD w GET u4 0	//从第一个位开始取 4 个位，结果是无符号数 (u)
+BITFIELD w SET u8 8 97	//从第 9 个位开始，将接下来的 8 个位用无符号数 97 替换
+BITFIELD w INCRBY u4 2 1	//从第三个位开始，对接下来的 4 位无符号数 +1
+```
+
+bitfield 指令提供了溢出策略子指令 overflow，用户可以选择溢出行为，默认是折返 (wrap)，还可以选择失败 (fail) 报错不执行，以及饱和截断 (sat)，超过了范围就停留在最大最小值。overflow 指令只影响接下来的第一条指令，这条指令执行完后溢出策略会变成默认值折返 (wrap)。 
+
+## HyperLogLog
+
+HyperLogLog提供不精确的去重计数方案，虽然不精确但是也不是非常不精确，标准误差是0.81% 。
+
+Redis对HyperLogLog的存储进行了优化，在计数比较小时，它的存储空间采用稀疏矩阵存储，空间占用很小，仅仅在计数慢慢变大，稀疏矩阵占用空间渐渐超过了阈值时才会一次性转变成稠密矩阵，会占用12k的空间。 
+
+### PFADD
+
+将元素添加到HyperLogLog数据结构中
+
+``` redis
+PFADD key element [element ...]
+```
+
+### PFCOUNT
+
+使用单个键调用时，返回由存储在指定变量中的HyperLogLog数据结构计算的近似基数，如果该变量不存在，则返回0。
+
+使用多个键调用时，通过将存储在所提供的键中的HyperLogLog内部合并到临时HyperLogLog中，返回传递的HyperlogLog的联合的近似基数。
+
+``` redis
+PFCOUNT key [key ...]
+```
+
+### PFMERGE
+
+将多个HyperLogLog值合并为一个唯一值，该值将近似观察到的源HyperLogLog结构集的联合的基数。 
+
+``` redis
+PFMERGE destkey sourcekey [sourcekey ...]
+```
+
+## 布隆过滤器
+
+布隆过滤器可以理解为一个不怎么精确的set结构，当你使用它的contains方法判断某个对象是否存在时，它可能会误判。但是布隆过滤器也不是特别不精确，只要参数设置的合理，它的精确度可以控制的相对足够精确，只会有小小的误判概率。 
+
+**当布隆过滤器说某个值存在时，这个值可能不存在；当它说不存在时，那就肯定不存在。**
+
+### 安装使用
+
+https://github.com/RedisLabsModules/redisbloom/
+
+``` shell
+wget https://github.com/RedisLabsModules/rebloom/archive/v1.1.1.tar.gz
+
+loadmodule /path/rebloom.so		//redis配置文件增加模块
+```
+
+### BF.RESERVE
+
+``` redis
+BF.RESERVE <key> <error_rate> <initial_size>
+```
+
+- initial_size：表示预计放入的元素数量，当实际数量超出这个数值时，误判率会上升，默认100
+- error_rate：误判率范围，默认0.01
+- key：如果对应的 key 已经存在，`bf.reserve`会报错
+
+### BF.ADD和BF.MADD
+
+添加单个或多个元素
+
+``` redis
+BF.ADD <key> <element>
+BF.MADD <key> <element> [element...]
+```
+
+### BF.EXISTS
+
+查询单个或多个元素是否存在
+
+``` redis
+BF.EXISTS <key> <element>
+BF.MEXISTS <key> <element> [element...]
+```
+
+## GEO
+
+Redis在3.2版本以后增加了地理位置GEO模块，GEO可以保存元素的经纬度，并可以计算经纬度的距离。
+
+GEO存储结构上使用的是zset，意味着我们可以使用zset相关的指令来操作GEO数据，所以删除指令可以直接使用zrem 指令即可。 
+
+### GEOADD
+
+``` redis
+GEOADD key longitude latitude member [longitude latitude member ...]
+```
+
+longitude：经度
+
+latitude：维度
+
+### GEODIST
+
+可以用来计算两个元素之间的距离
+
+``` redis
+GEODIST key member1 member2 [unit]
+```
+
+距离单位可以是m、km、ml、ft，分别代表米、千米、英里和尺。 
+
+### GEOPOS
+
+指令可以获取集合中任意元素的经纬度坐标，可以一次获取多个。 
+
+``` redis
+GEOPOS key member [member ...]
+```
+
+### GEOHASH
+
+可以获取元素的经纬度编码字符串，它是base32编码。 
+
+<http://geohash.org/> 可以查看GEOHASH编码字符串的位置。
+
+``` redis
+GEOHASH key member [member ...]
+```
+
+### GEORADIUSBYMEMBER
+
+最为关键的指令，它可以用来查询指定元素附近的其它元素。 
+
+``` 
+GEORADIUSBYMEMBER key member radius m|km|ft|mi [WITHCOORD] [WITHDIST] [WITHHASH] [COUNT count] [ASC|DESC] [STORE key] [STOREDIST key]
+```
+
+- `WITHDIST`：返回距离。距离以命令的半径参数的单位相同的单位返回。
+
+- `WITHCOORD`：返回匹配项目的经度，纬度坐标。
+
+- `WITHHASH`：还以52位无符号整数的形式返回项目的原始 geohash 编码的有序集合分数。
+
+## 漏斗限流
+
+漏斗限流是最常用的限流方法之一，顾名思义，这个算法的灵感源于漏斗（funnel）的结构。
+
+漏斗的容量是有限的，如果将漏嘴堵住，然后一直往里面灌水，它就会变满，直至再也装不进去。如果将漏嘴放开，水就会往下流，流走一部分之后，就又可以继续往里面灌水。如果漏嘴流水的速率大于灌水的速率，那么漏斗永远都装不满。如果漏嘴流水速率小于灌水的速率，那么一旦漏斗满了，灌水就需要暂停并等待漏斗腾空。 
+
+Redis4.0提供了一个限流Redis模块，它叫redis-cell。该模块也使用了漏斗算法，并提供了原子的限流指令。 
+
+<https://github.com/brandur/redis-cell/> 
+
+``` shell
+loadmodule /path/libredis_cell.so	//redis配置文件增加模块
+```
+
+``` redis
+cl.throttle <key> <capacity> <operations> <seconds> [quota]
+```
+
+- capacity：漏斗容量
+- operations/seconds：漏斗速率
+- quota：可选值，默认1
+
+``` redis
+cl.throttle laoqian:reply 15 30 60
+1) (integer) 0   # 0 表示允许，1表示拒绝
+2) (integer) 15  # 漏斗容量capacity
+3) (integer) 14  # 漏斗剩余空间left_quota
+4) (integer) -1  # 如果拒绝了，需要多长时间后再试(漏斗有空间了，单位秒)
+5) (integer) 2   # 多长时间后，漏斗完全空出来(left_quota==capacity，单位秒)
+```
