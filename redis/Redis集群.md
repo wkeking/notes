@@ -131,9 +131,16 @@ CLUSTER REPLICATE <node_id>
 - 新的主节点开始接收和自己负责处理的槽相关的命令请求，故障转移完成。
 
 
+## TAG
 
+**当一个key包含 {} 的时候，就不对整个key做hash，而仅对 {} 包括的字符串做hash。**
 
+``` shell
+set blue{color} true
+set red{color} true
+```
 
+以上两个字符串对象的hash一致，分配到的槽数一样。
 
 
 
