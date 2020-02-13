@@ -1,6 +1,26 @@
 # SpringCloud
 
+## 什么是SpringCloud
+
+`Spring Cloud` 就是微服务系统架构的一站式解决方案，在平时我们构建微服务的过程中需要做如 **服务发现注册** 、**配置中心** 、**消息总线** 、**负载均衡** 、**断路器** 、**数据监控**等操作，而 Spring Cloud 为我们提供了一套简易的编程模型，使我们能在` SpringBoot` 的基础上轻松地实现微服务项目的构建。
+
+![springcloud](./images/springcloud.jpg)
+
+## SpringCloud版本
+
+Spring Cloud 的版本号并不是我们通常见的数字版本号，而是一些很奇怪的单词。这些单词均为英国伦敦地铁站的站名。同时根据字母表的顺序来对应版本时间顺序，比如：最早 的 Release 版本 Angel，第二个 Release 版本 Brixton（英国地名），然后是 Camden、 Dalston、Edgware、Finchley、Greenwich、Hoxton。
+
 ## SpringCloud Eureka
+
+**服务注册 Register** ：当Client向Server注册时，它提供自身的**元数据** ，比如IP地址、端口，运行状况指示符URL，主页等。
+
+**服务续约 Renew** ：**Client会每隔30秒(默认情况下)发送一次心跳来续约** 。 通过续约来告知Server该Client仍然存在，没有出现问题。 正常情况下，如果Server在90秒没有收到Client的续约，它会将实例从其注册表中删除。
+
+**获取注册列表信息 Fetch Registries** ：客户端从服务器获取注册表信息，并将其缓存在本地。客户端会使用该信息查找其他服务，从而进行远程调用。该注册列表信息定期（每30秒钟）更新一次。每次返回注册列表信息可能与客户端的缓存信息不同,客户端自动处理。如果由于某种原因导致注册列表信息不能及时匹配，客户端则会重新获取整个注册表信息。服务器缓存注册列表信息，整个注册表以及每个应用程序的信息进行了压缩，压缩内容和没有压缩的内容完全相同。客户端和 服务器可以使用JSON / XML格式进行通讯。在默认的情况下客户端使用压缩 `JSON` 格式来获取注册列表的信息。
+
+**服务下线 Cancel** ：客户端在程序关闭时向服务器发送取消请求。 发送请求后，该客户端实例信息将从服务器的实例注册表中删除。该下线请求不会自动完成，它需要调用以下内容：`DiscoveryManager.getInstance().shutdownComponent();`
+
+**服务剔除 Eviction** ：在默认的情况下，**当Eureka客户端连续90秒(3个续约周期)没有向Eureka服务器发送服务续约，即心跳，Eureka服务器会将该服务实例从服务注册列表删除** ，即服务剔除。
 
 ### 基于Netflix Eureka做了二次封装
 
@@ -79,6 +99,22 @@ public RestTemplate restTemplate() {
 - ServerListFilter
 - IRule
 
+
+在 `Ribbon` 中有更多的负载均衡调度算法，其默认是使用的 `RoundRobinRule` 轮询策略。
+
+- **RoundRobinRule** ：轮询策略。`Ribbon` 默认采用的策略。若经过一轮轮询没有找到可用的 `provider`，其最多轮询 10 轮。若最终还没有找到，则返回 null。
+- **RandomRule** : 随机策略，从所有可用的 provider 中随机选择一个。
+- **RetryRule** : 重试策略。先按照 RoundRobinRule 策略获取 provider，若获取失败，则在指定的时限内重试。默认的时限为 500 毫秒。
+
+还有很多，只需要知道的是默认轮询算法，并且可以更换默认的负载均衡算法，只需要在配置文件中做出修改就行。
+
+```yaml
+providerName:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+```
+
+当然，在 `Ribbon` 中你还可以**自定义负载均衡算法** ，你只需要实现 `IRule` 接口，然后修改配置文件或者自定义 `Java Config` 类。
 
 ## SpringCloud Config
 
